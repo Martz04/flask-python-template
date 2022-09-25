@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+
+  app:
+    container_name: flask-app
+    build: .
+    env_file: config/dev.env
+    ports:
+      - 5001:5001
+    links:
+      - mongo
+    depends_on:
+      - mongo
+    volumes:
+      - ./src:/src
+
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - ~/apps/mongo:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=S3cret
+      - MONGO_INITDB_DATABASE=todo
+
+  mongo-express:
+    links:
+      - mongo
+    image: mongo-express
+    restart: always
+    depends_on:
+      - mongo
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://root:S3cret@mongo:27017
+
